@@ -8,8 +8,37 @@ $app->register(new Silex\Provider\TwigServiceProvider(), array(
     'twig.path' => __DIR__.'/../views',
 ));
 
+$app->register(new Silex\Provider\DoctrineServiceProvider(), array(
+    'db.options' => array(
+        'driver' => 'pdo_mysql',
+        'dbname' => 'silex', 
+        'host' => 'localhost',
+        'user' => 'silex',
+        'password' => 'password'
+    )
+));
+
 $app->get('/member/register', function() use ($app) {
     return $app['twig']->render('register.html.twig');
+});
+
+$app->post('/member/register', function() use($app){
+    $request = $app['request'];
+    $member = $request->get('member');
+
+    $stmt = $app['db']->prepare("
+        INSERT INTO member SET 
+        email = :email
+        ,password = :password
+    ");
+    $stmt->bindParam(':email', $member['email']);
+    $password = md5($member['password']);
+    $stmt->bindParam(':password', $password);
+    $stmt->execute();
+
+    return $app['twig']->render('finish.html.twig', array(
+        'member' => $member
+    ));
 });
 
 $app->run();
