@@ -20,6 +20,7 @@ $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
     )
 ));
 
+$app->register(new SilexTutorial\Provider\MemberServiceProvider());
 $app->mount('/member', new SilexTutorial\Provider\MemberControllerProvider() );
 
 $app->run();
